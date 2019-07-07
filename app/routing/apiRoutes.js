@@ -1,20 +1,29 @@
-// displays all friends
-app.get("/api/friends", function(req, res) {
-    return res.json(friends);
-});
+var path = require("path");
+var houses = require("./../data/houses.js");
 
-app.post("/api/friends", function(req, res) {
-    // req.body hosts is equal to the JSON post sent from the user
-    // This works because of our body parsing middleware
-    var newfriends = req.body;
-  
-    // Using a RegEx Pattern to remove spaces from newCharacter
-    // You can read more about RegEx Patterns later https://www.regexbuddy.com/regex.html
-    newfriends.routeName = newfriends.name.replace(/\s+/g, "").toLowerCase();
-  
-    console.log(newfriends);
-  
-    characters.push(newfriends);
-  
-    res.json(newfriends);
-  });
+module.exports = function(app) {
+    app.get("/api/houses", (req, res) => {
+        res.json(houses);
+    });
+
+    app.post("/api/houses", (req, res) => {
+        var userData = req.body;
+        var userResponses = userData.scores;
+
+        var name ="";
+        var totalDifference =10000;
+
+        for (var i = 0; i < houses.length; i++) {
+            var diff = 0;
+            for (var j = 0; j < userResponses.length; j++){
+                diff += Math.abs(houses[i].scores[j] - userResponses[j]);
+            }
+            if (diff < totalDifference) {
+                totalDifference =  diff;
+                name = houses[i].name;
+            }
+        }
+        houses.push(userData);
+        res.json({status: "ok", name: name});
+    });
+};
